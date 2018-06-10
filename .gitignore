@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+activate.bat
+run.bat
+snitchtracker/snitchtracker/secrets.py
+
 # Distribution / packaging
 .Python
 build/
@@ -87,6 +91,7 @@ celerybeat-schedule
 env/
 venv/
 ENV/
+virtual/
 env.bak/
 venv.bak/
 
