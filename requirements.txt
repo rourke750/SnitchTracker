@@ -1,3 +1,4 @@
 django
 social-auth-app-django
 python-social-auth[django]
+celery

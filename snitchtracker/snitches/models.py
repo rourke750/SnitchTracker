@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 # Create your models here.
 
@@ -10,6 +11,11 @@ from django.dispatch import receiver
 class Group(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE) # The owner.
     name = models.CharField(max_length=32) # Name of the group.
+    
+# This class handles which webcall goes to which group
+class Token(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE) # The group.
+    api_key = models.CharField(max_length=32)
     
 class Group_Member(models.Model):
     belongs = models.ForeignKey(Group, on_delete=models.CASCADE)
@@ -46,6 +52,27 @@ class Snitch_Group(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User,unique=True, null=False, db_index=True, on_delete=models.CASCADE)
     token = models.TextField(max_length=36, blank=True)
+    
+class WebhookTransaction(models.Model):
+    UNPROCESSED = 1
+    PROCESSED = 2
+    ERROR = 3
+
+    STATUSES = (
+        (UNPROCESSED, 'Unprocessed'),
+        (PROCESSED, 'Processed'),
+        (ERROR, 'Error'),
+    )
+
+    date_generated = models.DateTimeField()
+    date_received = models.DateTimeField(default=timezone.now)
+    body = models.TextField()
+    request_meta = models.TextField()
+    status = models.CharField(max_length=250, choices=STATUSES, default=UNPROCESSED)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE) # The group.
+
+    def __unicode__(self):
+        return u'{0}'.format(self.date_event_generated)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
