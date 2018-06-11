@@ -20,6 +20,11 @@
       <li class="nav-item">
        <a class="nav-link" href="/snitches/">Snitches</a>
     </ul>
+    {% if user.is_superuser %}
+     <span class="nav-item">
+      <a class="nav-link" href="/admin/">Admin</a>
+     </span>
+    {% endif %}
     <span class="nav-item">
       <a class="nav-link" href="/logout/">Log Out</a>
     </span>

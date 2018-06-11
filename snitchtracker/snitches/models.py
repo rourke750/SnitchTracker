@@ -30,7 +30,6 @@ class Group_Member(models.Model):
     
 # This class handles individual snitch messages.
 class Snitch_Details(models.Model):
-    owner = models.ForeignKey(Group, on_delete=models.CASCADE)
     x_pos = models.IntegerField(default=0) # x pos of the snitch.
     y_pos = models.IntegerField(default=0) # y pos of the snitch.
     z_pos = models.IntegerField(default=0) # z pos of the snitch.
@@ -39,6 +38,10 @@ class Snitch_Details(models.Model):
     user = models.CharField(max_length=20) # Who entered the field.
     name = models.CharField(max_length=40) # Name of the snitch.
     pub_date = models.DateTimeField('date published', default=None)
+    
+class Snitch_Group(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    snitch = models.ForeignKey(Snitch_Details, on_delete=models.CASCADE)
     
 class Profile(models.Model):
     user = models.OneToOneField(User,unique=True, null=False, db_index=True, on_delete=models.CASCADE)
