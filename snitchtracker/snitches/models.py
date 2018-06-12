@@ -29,7 +29,7 @@ class Group_Member(models.Model):
         (MEMBER, 'Member'),
     )
     permission = models.CharField(
-        max_length=2,
+        max_length=6,
         choices=PERMISSIONS,
         default=OWNER,
     )
@@ -45,6 +45,7 @@ class Snitch_Details(models.Model):
     name = models.CharField(max_length=40) # Name of the snitch.
     pub_date = models.DateTimeField('date published', default=None)
     
+# This class represents a connector from a snitch record to the group.
 class Snitch_Group(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     snitch = models.ForeignKey(Snitch_Details, on_delete=models.CASCADE)

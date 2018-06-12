@@ -1,0 +1,26 @@
+{% extends 'home/base.html' %}
+{% block content %}
+ <div>
+  <h1><u>{{ group.name }}</u></h1>
+  <div class="container">
+   <div class="row">
+    <div class="col-sm">
+     <u>Member</u>
+    </div>
+    <div class="col-sm">
+     <u>Permission</u>
+    </div>
+   </div>
+   {% for user in userList %}
+    <div class="row">
+     <div class="col-sm">
+      {{ user.username }}
+     </div>
+     <div class="col-sm">
+      {{ user.perm }}
+     </div>
+    </div>
+   {% endfor %}
+  </div>
+ </div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'home/base.html' %}
+{% block content %}
+ <h1><u>Groups</u></h1>
+ <div class="container">
+  <div class="row">
+   <div class="col-sm">
+    {% for group in groupList %}
+     <div class="row">
+      <h5>
+       <a href="/groups/{{ group.name }}">{{group.name}}</a>
+      </h5>
+     </div>
+  {% endfor %}
+   </div>
+   <div class="col-sm">
+   <b><u>Add Group:</u></b>
+    <form action="/groups" method="post">
+     {% csrf_token %}
+     <input id="group_name" name="group_name" type="text" placeholder="Group Name">
+     <span id="errorname">{{ error }}</span>
+     <input type="submit" value="CREATE">
+    </form>
+   </div>
+  </div>
+ </div>
+{% endblock %}

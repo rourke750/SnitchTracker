@@ -13,3 +13,6 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('token',)
+        
+class GroupForm(forms.Form):
+    group_name = forms.CharField(label='Group name', max_length=20)

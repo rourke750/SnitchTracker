@@ -10,8 +10,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.db import transaction
-from .models import Profile, Token
-from .forms import UserForm,ProfileForm
+from .models import Profile, Token, Group, Group_Member
+from .forms import UserForm, ProfileForm, GroupForm
 
 # Create your views here.
 
@@ -37,6 +37,41 @@ def update_profile(request):
         'user_form': user_form,
         'profile_form': profile_form
     })
+   
+@login_required
+@transaction.atomic   
+def handle_group(request, name=None):
+    error = None
+    if request.method == 'POST':
+        # This is for if user creates a group
+        form = GroupForm(request.POST)
+        if (form.is_valid()):
+            name = form.cleaned_data['group_name']
+            return HttpResponseRedirect('/groups')
+        error = {'error': 'Form is invalid'}
+    if (name == None):
+        # No group specified
+        # Let's render the groups
+        groups = Group.objects.filter(owner=request.user)
+        content = {'groupList' : groups}
+        if not (error is None):
+            content.update(error)
+        return render(request, 'home/group.html', content)
+    else:
+        # We are rendering a specific group
+        group = get_object_or_404(Group, owner=request.user, name=name)
+        users = []
+        try:
+            group_members = Group_Member.objects.filter(belongs=group)
+            for member in group_members:
+                users.append({'username' : member.user.username, 'perm' : member.permission})
+        except ObjectDoesNotExist:
+            pass
+        content = {
+            'group' : group,
+            'userList' : users
+        }
+        return render(request, 'home/groups.html', content)
     
 @csrf_exempt
 @require_POST
