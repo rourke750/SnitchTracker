@@ -46,9 +46,18 @@ def handle_group(request, name=None):
         # This is for if user creates a group
         form = GroupForm(request.POST)
         if (form.is_valid()):
-            name = form.cleaned_data['group_name']
-            return HttpResponseRedirect('/groups')
-        error = {'error': 'Form is invalid'}
+            n = form.cleaned_data['group_name']
+            # Now need to check if the user already owns this group
+            if len(Group.objects.filter(owner=request.user, name=n)) > 0:
+                # Name exists
+                error = {'error': 'Group already exists.'}
+            else:
+                # Name doesn't exist, time to create it
+                group = Group(owner=request.user, name=n)
+                group.save()
+                return HttpResponseRedirect('/groups', error)
+        else:
+            error = {'error': 'Form is invalid'}
     if (name == None):
         # No group specified
         # Let's render the groups
