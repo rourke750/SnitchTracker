@@ -10,7 +10,12 @@
     <div class="col-sm">
      <u>Permission</u>
     </div>
-   </div>
+     <form method="post">
+      {% csrf_token %}
+      {{ addMemberForm }}
+      <button type="submit">Save changes</button>
+     </form>
+    </div>
    {% for user in userList %}
     <div class="row">
      <div class="col-sm">
