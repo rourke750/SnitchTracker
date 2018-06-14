@@ -20,18 +20,16 @@ class Token(models.Model):
 class Group_Member(models.Model):
     belongs = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    OWNER = 'owner'
-    ADMIN = 'admin'
-    MEMBER = 'member'
+    ADMIN = 'ad'
+    MEMBER = 'me'
     PERMISSIONS = (
-        (OWNER, 'Owner'),
         (ADMIN, 'Admin'),
         (MEMBER, 'Member'),
     )
     permission = models.CharField(
-        max_length=6,
+        max_length=2,
         choices=PERMISSIONS,
-        default=OWNER,
+        default=MEMBER,
     )
     
 # This class handles individual snitch messages.

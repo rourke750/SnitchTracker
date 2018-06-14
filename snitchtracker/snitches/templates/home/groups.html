@@ -2,6 +2,13 @@
 {% block content %}
  <div>
   <h1><u>{{ group.name }}</u></h1>
+  <div>
+     <form method="post">
+      {% csrf_token %}
+      {{ addMemberForm }}
+      <button type="submit">Add User</button>
+     </form>
+     </div>
   <div class="container">
    <div class="row">
     <div class="col-sm">
@@ -10,11 +17,6 @@
     <div class="col-sm">
      <u>Permission</u>
     </div>
-     <form method="post">
-      {% csrf_token %}
-      {{ addMemberForm }}
-      <button type="submit">Save changes</button>
-     </form>
     </div>
    {% for user in userList %}
     <div class="row">

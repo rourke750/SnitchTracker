@@ -65,7 +65,8 @@ def handle_group(request):
     if not (error is None):
         content.update(error)
     return render(request, 'home/group.html', content)
-        
+       
+# This method is only for showing groups that a user owns       
 @login_required
 @transaction.atomic
 def show_group(request, name):
@@ -80,12 +81,17 @@ def show_group(request, name):
             users.append({'username' : member.user.username, 'perm' : member.permission})
     except ObjectDoesNotExist:
         pass
-    add_member_form = AddMember()
     content = {
         'group' : group,
-        'userList' : users,
-        'addMemberForm' : add_member_form
+        'userList' : users
     }
+    try:
+        
+        add_member_form = AddMember(group=group, user=request.user)
+        update = {'addMemberForm' : add_member_form}
+        content.update(update)
+    except ObjectDoesNotExist:
+        pass
     return render(request, 'home/groups.html', content)
         
 @csrf_exempt
