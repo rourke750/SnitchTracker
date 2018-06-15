@@ -2,6 +2,15 @@
 {% block content %}
  <div>
   <h1><u>{{ group.name }}</u></h1>
+  {% if generateButton %}
+   <form action="{{ request.path }}/t/generate" method="post">
+    {% csrf_token %}
+    <button type="submit">Generate Token</button>
+   </form>
+  {% endif %}
+  {% if token %}
+   <span>API key for this group is: {{ token.api_key }}</span>
+  {% endif %}
   <div>
    {% if addMemberForm %}
      <form method="post">

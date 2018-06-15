@@ -10,6 +10,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.db import transaction
+from django.utils.crypto import get_random_string
+
 from .models import Profile, Token, Group, Group_Member
 from .forms import UserForm, ProfileForm, GroupForm, AddMember
 
@@ -77,9 +79,11 @@ def show_group(request, name, user=None):
     # We are rendering a specific group
     # First check if the group is being accessed by owner
     edit = False
+    owner = False
     if user is None:
         group = get_object_or_404(Group, owner=request.user, name=name)
         edit = True
+        owner = True
     else:
         # The user is being checked by a member or admin
         ownerObject = User.objects.get(username=user) # Owner of the group
@@ -103,9 +107,21 @@ def show_group(request, name, user=None):
             users.append({'username' : member.user.username, 'perm' : member.permission})
     except ObjectDoesNotExist:
         pass
+        
+    # Let's see if we should show the token.
+    token = False
+    if owner:
+        # Is there a token.
+        try:
+            token = Token.objects.get(group=group)
+            owner = False
+        except ObjectDoesNotExist:
+            pass
     content = {
         'group' : group,
-        'userList' : users
+        'userList' : users,
+        'generateButton' : owner,
+        'token' : token
     }
     if edit:
         try:
@@ -176,7 +192,20 @@ def webhook(request, key):
     )
 
     return HttpResponse(status=200)
-
+  
+@login_required
+@require_POST
+@transaction.atomic
+def generate_token(request, group):
+    # First need to make sure request is valid
+    try:
+        groupObject = Group.objects.get(name=group, owner=request.user)
+    except ObjectDoesNotExist:
+        return HttpResponse(status=403)
+    # Now generate a token
+    Token.objects.create(group=groupObject, api_key=get_random_string(length=32))
+    return HttpResponseRedirect('/groups/o/%s' % group)
+    
 def logout_view(request):
     logout(request)
     return render(request, 'home/home.html')

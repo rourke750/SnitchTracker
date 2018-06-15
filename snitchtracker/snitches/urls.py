@@ -12,6 +12,7 @@ urlpatterns = [
     path(r'groups/o/<str:group>/r/<str:user>', views.remove_member), # For owner
     path(r'groups/m/<str:user>/<str:name>', views.show_group), # For anyone but owner
     path(r'groups/m/<str:owner>/<str:group>/r/<str:user>', views.remove_member), # For anyone but owner
+    path(r'groups/o/<str:group>/t/generate', views.generate_token), # Generating a token
     url(r'^logout', views.logout_view),
     path(r'api/webhook/<str:key>', views.webhook),
     url(r'^', views.Home),
