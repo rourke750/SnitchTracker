@@ -1,7 +1,9 @@
 from celery.task import PeriodicTask
 from celery.schedules import crontab
 
-from .models import Snitch_Details, WebhookTransaction
+from django.core.exceptions import ObjectDoesNotExist
+
+from .models import Snitch, Snitch_Record, WebhookTransaction
 
 class ProcessMessages(PeriodicTask):
     run_every = crontab()  # this will run once a minute
@@ -25,14 +27,28 @@ class ProcessMessages(PeriodicTask):
         )
         
     def process_trans(self, trans):
-        return Message.objects.create(
-            team_id=trans.body['team_id'],
-            team_domain=trans.body['team_domain'],
-            channel_id=trans.body['channel_id'],
-            user_id=trans.body['user_id'],
-            user_name=trans.body['user_name'],
-            text=trans.body['text'],
-            user_id=trans.body['user_id'],
-            trigger_word=trans.body['trigger_word'],
-            webhook_transaction=trans
-        )
+        # Let's do this in steps.
+        # First we need to get the main snitch or create it if it doesnt exist.
+        try:
+            snitch = Snitch.objects.get(
+                    token=trans.token,
+                    name=trans.body['snitch_name'],
+                    x_pos=trans.body['x_pos'],
+                    y_pos=trans.body['y_pos'],
+                    z_pos=trans.body['z_pos'],
+                    world=trans.body['world'],
+                    server=trans.body['server']
+                )
+        except ObjectDoesNotExist:
+            # If it failed means we need to create it.
+            snitch = Snitch.objects.create(
+                    token=trans.token,
+                    name=trans.body['snitch_name'],
+                    x_pos=trans.body['x_pos'],
+                    y_pos=trans.body['y_pos'],
+                    z_pos=trans.body['z_pos'],
+                    world=trans.body['world'],
+                    server=trans.body['server']
+                )
+        # Now let's make the record for it.
+        # Todo build a Snitch_record model

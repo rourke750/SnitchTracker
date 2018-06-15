@@ -172,7 +172,7 @@ def webhook(request, key):
         ),
         body=data,
         request_meta=meta,
-        group = token.group
+        token = token
     )
 
     return HttpResponse(status=200)
