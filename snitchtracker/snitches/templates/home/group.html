@@ -26,12 +26,18 @@
  {% for group in sharedList %}
  <h1><u>{{ group.belongs.owner }}'s Groups</u></h1>
  <div class="container">
-  <div class="col-sm">
-    <div class="row">
-     <h5>
-      <a href="/groups/m/{{ group.belongs.owner }}/{{ group.belongs.name }}">{{group.belongs.name}}</a>
-     </h5>
-    </div>
+  <div class="row">
+   <div class="col-sm">
+    <h5>
+     <a href="/groups/m/{{ group.belongs.owner }}/{{ group.belongs.name }}">{{group.belongs.name}}</a>
+    </h5>
    </div>
+   <div class="col-sm">
+    <h5>
+     <span>{{ group.permission }}</span>
+    </h5>
+   </div>
+  </div>
+ </div>
  {% endfor %}
 {% endblock %}
