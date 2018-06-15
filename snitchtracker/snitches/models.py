@@ -20,8 +20,8 @@ class Token(models.Model):
 class Group_Member(models.Model):
     belongs = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ADMIN = 'ad'
-    MEMBER = 'me'
+    ADMIN = 0
+    MEMBER = 1
     PERMISSIONS = (
         (ADMIN, 'Admin'),
         (MEMBER, 'Member'),

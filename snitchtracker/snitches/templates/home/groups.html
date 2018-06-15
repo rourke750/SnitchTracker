@@ -17,6 +17,11 @@
     <div class="col-sm">
      <u>Permission</u>
     </div>
+    {% if addMemberForm %}
+     <div class="col-sm">
+      <u>Remove</u>
+     </div>
+    {% endif %}
     </div>
    {% for user in userList %}
     <div class="row">
@@ -26,6 +31,14 @@
      <div class="col-sm">
       {{ user.perm }}
      </div>
+     {% if addMemberForm %}
+      <div class="col-sm">
+       <form action="{{ request.path }}/r/{{user.username}}" method="post">
+        {% csrf_token %}
+        <button type="submit">Remove</button>
+       </form>
+      </div>
+     {% endif %}
     </div>
    {% endfor %}
   </div>

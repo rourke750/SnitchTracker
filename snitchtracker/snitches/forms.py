@@ -15,22 +15,25 @@ class ProfileForm(forms.ModelForm):
         fields = ('token',)
         
 class GroupForm(forms.Form):
-    group_name = forms.CharField(label='Group name', max_length=20)
+    group_name = forms.CharField(label='Group name', max_length=32)
     
 class AddMember(forms.Form):
     def __init__(self, *args,**kwargs):
-        group = kwargs.pop('group')
-        user = kwargs.pop('user')
-        members = Group_Member.objects.filter(belongs=group)
-        users = User.objects.all().exclude(id=user.id)
-        for member in members:
-            users = users.exclude(id=member.user.id)
+        try:
+            group = kwargs.pop('group')
+            user = kwargs.pop('user')
+            members = Group_Member.objects.filter(belongs=group)
+            users = User.objects.all().exclude(id=user.id)
+            for member in members:
+                users = users.exclude(id=member.user.id)
             
-        names = forms.ModelMultipleChoiceField(queryset=users)
-        super(AddMember,self).__init__(*args,**kwargs)
-        self.fields['name'] = names
+            names = forms.ModelMultipleChoiceField(queryset=users)
+            super(AddMember,self).__init__(*args,**kwargs)
+            self.fields['name'] = names
+        except KeyError:
+            super(AddMember,self).__init__(*args,**kwargs)
     
-    name = forms.ModelMultipleChoiceField(queryset=None)
+    name = forms.ModelMultipleChoiceField(queryset=User.objects.all())
     permission = forms.CharField(
             max_length=2,
             widget=forms.Select(choices=Group_Member.PERMISSIONS),

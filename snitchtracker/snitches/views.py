@@ -69,13 +69,31 @@ def handle_group(request):
 # This method is only for showing groups that a user owns       
 @login_required
 @transaction.atomic
-def show_group(request, name):
-    if request.method == 'POST':
-        pass
+def show_group(request, name, user=None):
     # We are rendering a specific group
-    group = get_object_or_404(Group, owner=request.user, name=name)
+    # First check if the group is being accessed by owner
+    edit = False
+    if user is None:
+        group = get_object_or_404(Group, owner=request.user, name=name)
+        edit = True
+    else:
+        # The user is being checked by a member or admin
+        ownerObject = User.objects.get(username=user) # Owner of the group
+        group = get_object_or_404(Group, owner=ownerObject, name=name)
+        groupMember = get_object_or_404(Group_Member, belongs=group, user=request.user)
+        if groupMember.permission == groupMember.ADMIN: # User is admin so had permission
+            edit = True
+    if request.method == 'POST' and edit:
+        # The user added a member
+        form = AddMember(request.POST)
+        if form.is_valid():
+            newMember = form.cleaned_data['name']
+            perm = form.cleaned_data['permission']
+            member = Group_Member(belongs=group, user=newMember[0], permission=Group_Member.PERMISSIONS[int(perm)][1])
+            member.save()
     users = []
     try:
+        # Get a list of members and render them
         group_members = Group_Member.objects.filter(belongs=group)
         for member in group_members:
             users.append({'username' : member.user.username, 'perm' : member.permission})
@@ -85,14 +103,48 @@ def show_group(request, name):
         'group' : group,
         'userList' : users
     }
-    try:
-        
-        add_member_form = AddMember(group=group, user=request.user)
-        update = {'addMemberForm' : add_member_form}
-        content.update(update)
-    except ObjectDoesNotExist:
-        pass
+    if edit:
+        try:
+            add_member_form = AddMember(group=group, user=request.user)
+            update = {'addMemberForm' : add_member_form}
+            content.update(update)
+        except ObjectDoesNotExist:
+            pass
     return render(request, 'home/groups.html', content)
+    
+@login_required
+@require_POST
+@transaction.atomic
+def remove_member(request, group, user, owner=None):
+    # First let's check if the user has permission
+    # Let's see if the user is the owner
+    try:
+        groupObject = Group.objects.get(name=group, owner=request.user)
+        edit = True
+    except ObjectDoesNotExist:
+        edit = False
+    if not edit:
+        # User wasn't owner, let's see if they have admin
+        if owner is None:
+            # Quick easy check
+            return HttpResponse(status=404)
+        try:
+            ownerObject = User.objects.get(username=owner)
+            groupObject = Group.objects.get(name=group, owner=ownerObject)
+            groupMember = Group_Member.objects.get(belongs=groupObject, user=request.user)
+            if groupMember.permission != groupMember.ADMIN:
+                return HttpResponse(status=404)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=404)
+    # If we are here then the user can edit
+    deleteUser = User.objects.get(username=user)
+    Group_Member.objects.get(belongs=groupObject, user=deleteUser).delete()
+    if not owner is None:
+        # Admin removed someone
+        return HttpResponseRedirect('/groups/m/%s/%s' % (owner, group))
+    else:
+        # Owner
+        return HttpResponseRedirect('/groups/o/%s' % group)
         
 @csrf_exempt
 @require_POST

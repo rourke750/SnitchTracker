@@ -7,14 +7,14 @@
     {% for group in groupList %}
      <div class="row">
       <h5>
-       <a href="/groups/{{ group.name }}">{{group.name}}</a>
+       <a href="/groups/o/{{ group.name }}">{{group.name}}</a>
       </h5>
      </div>
   {% endfor %}
    </div>
    <div class="col-sm">
    <b><u>Add Group:</u></b>
-    <form action="/groups" method="post">
+    <form action="{{ request.path }}" method="post">
      {% csrf_token %}
      <input id="group_name" name="group_name" type="text" placeholder="Group Name">
      <span id="errorname">{{ error }}</span>
