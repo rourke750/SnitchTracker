@@ -38,6 +38,7 @@ def update_profile(request):
         'profile_form': profile_form
     })
    
+# This method handles displaying all your groups
 @login_required
 @transaction.atomic
 def handle_group(request):
@@ -61,12 +62,15 @@ def handle_group(request):
     # No group specified
     # Let's render the groups
     groups = Group.objects.filter(owner=request.user)
-    content = {'groupList' : groups}
+    sharedGroups = Group_Member.objects.filter(user=request.user)
+    content = {
+            'groupList' : groups,
+            'sharedList' : sharedGroups
+        }
     if not (error is None):
         content.update(error)
     return render(request, 'home/group.html', content)
-       
-# This method is only for showing groups that a user owns       
+           
 @login_required
 @transaction.atomic
 def show_group(request, name, user=None):

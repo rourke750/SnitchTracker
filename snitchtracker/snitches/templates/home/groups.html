@@ -3,12 +3,14 @@
  <div>
   <h1><u>{{ group.name }}</u></h1>
   <div>
+   {% if addMemberForm %}
      <form method="post">
       {% csrf_token %}
       {{ addMemberForm }}
       <button type="submit">Add User</button>
      </form>
-     </div>
+    {% endif %}
+   </div>
   <div class="container">
    <div class="row">
     <div class="col-sm">
