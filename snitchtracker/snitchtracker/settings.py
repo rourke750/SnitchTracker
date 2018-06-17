@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'snitches.apps.SnitchesConfig',
     'social_django',
-    'django.contrib.admin',
+    'django.contrib.admin'
 ]
 
 #SOCIAL_AUTH_STORAGE = 'social_django_mongoengine.models.DjangoStorage'

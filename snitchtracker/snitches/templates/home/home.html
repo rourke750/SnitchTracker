@@ -2,12 +2,31 @@
 {% block content %}
 <div class="container">
  {% if user.is_authenticated %}
-  
+   <div id="app-root">Loading...</div>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.1.0/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="https://civclassics.firebaseapp.com/style.css" />
+    <script src="https://civclassics.firebaseapp.com/js/bundle.js">
+    </script>
+    <script>
+     document.getElementById("app-root").children[0].children[0].classList.remove('appbar');
+     setTimeout("location.reload(true);", 10000);
+    </script>
+    {% for snitch in snitchList %}
+    <script>
+        // example: load an icon, after 1000ms move it and change the name
+        var f = {
+            "x": -4000, "z": 1000, "id": "SOME_UNIQUE_ID", "name": "TTK2 sighted",
+            icon: 'https://minotar.net/avatar/ttk2/32.png', icon_size: 32,
+        }
+        CivMap.api.dispatch({ type: 'UPDATE_FEATURE', feature: f })
+        
+    </script>
+    {% endfor %}
+  </div>
  {% endif %}
  {% if not user.is_authenticated %}
   <div class="d-flex justify-content-center">
   <a class="text-center" href='/account/login/'>Welcome, click here to log in</a>
   </div>
  {% endif %}
-</div>
 {% endblock %}

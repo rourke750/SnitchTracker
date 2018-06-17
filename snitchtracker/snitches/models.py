@@ -4,6 +4,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from jsonfield import JSONField
+
 # Create your models here.
 
 # This class represents which the snitches belong to.
@@ -44,6 +46,20 @@ class Snitch(models.Model):
     # This class handles individual snitch messages.
 class Snitch_Record(models.Model):
     snitch = models.ForeignKey(Snitch, on_delete=models.CASCADE) # The snitch.
+    ENTERED = 0
+    LOGGED_IN = 1
+    LOGGED_OUT = 2
+    TYPES = (
+        (ENTERED, 'Entered'),
+        (LOGGED_IN, 'Logged in'),
+        (LOGGED_OUT, 'Logged out'),
+    )
+    type = models.CharField(
+        max_length=2,
+        choices=TYPES,
+        default=None,
+    )
+    user = models.CharField(max_length=16) # The Minecraft username of the player who entered.
     pub_date = models.DateTimeField('date published', default=None)
     # Currently incomplete, once finalize what details we want will update
     
@@ -57,9 +73,9 @@ class Profile(models.Model):
     token = models.TextField(max_length=36, blank=True)
     
 class WebhookTransaction(models.Model):
-    UNPROCESSED = 1
-    PROCESSED = 2
-    ERROR = 3
+    UNPROCESSED = 'UN'
+    PROCESSED = 'PR'
+    ERROR = 'ER'
 
     STATUSES = (
         (UNPROCESSED, 'Unprocessed'),
@@ -69,10 +85,10 @@ class WebhookTransaction(models.Model):
 
     date_generated = models.DateTimeField()
     date_received = models.DateTimeField(default=timezone.now)
-    body = models.TextField()
+    body = JSONField()
     request_meta = models.TextField()
     status = models.CharField(max_length=250, choices=STATUSES, default=UNPROCESSED)
-    token = models.ForeignKey(Token, on_delete=models.CASCADE) # The group.
+    token = models.ForeignKey(Token, on_delete=models.CASCADE) # The token.
 
     def __unicode__(self):
         return u'{0}'.format(self.date_event_generated)

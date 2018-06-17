@@ -11,11 +11,19 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.utils.crypto import get_random_string
+from django.utils import timezone
 
-from .models import Profile, Token, Group, Group_Member
+from .tasks import run, RepeatedTimer
+
+import threading
+
+from .models import Profile, Token, Group, Group_Member, WebhookTransaction, Snitch, Snitch_Record
 from .forms import UserForm, ProfileForm, GroupForm, AddMember
 
 # Create your views here.
+
+def test(request):
+    return render(request, 'home/test.html')
 
 def Home(request):
     return render(request, 'home/home.html')
@@ -166,31 +174,67 @@ def remove_member(request, group, user, owner=None):
         # Owner
         return HttpResponseRedirect('/groups/o/%s' % group)
         
+rt = None
 @csrf_exempt
 @require_POST
 def webhook(request, key):
+    # Start the process
+    global rt
+    if rt is None:
+        rt = RepeatedTimer(10, run)
     try:
         token = Token.objects.get(api_key=key)
     except ObjectDoesNotExist:
         return HttpResponse(status=403)
     
     jsondata = request.body
-    data = json.loads(jsondata)
+    data = json.loads(jsondata.decode('utf8'))
     meta = copy.copy(request.META)
-    for k, v in meta.items():
-        if not isinstance(v, basestring):
-            del meta[k]
-
+    #for k, v in meta.items():
+    #    if not isinstance(v, basestring):
+    #        del meta[k]
+    
     WebhookTransaction.objects.create(
-        date_event_generated=datetime.datetime.fromtimestamp(
-            data['timestamp']/1000.0, 
+        date_generated=datetime.datetime.fromtimestamp(
+            data['timestamp'], 
             tz=timezone.get_current_timezone()
         ),
         body=data,
         request_meta=meta,
         token = token
     )
-
+    """
+    try:
+        snitch = Snitch.objects.get(
+                token=token,
+                name=data['snitch_name'],
+                x_pos=data['x_pos'],
+                y_pos=data['y_pos'],
+                z_pos=data['z_pos'],
+                world=data['world'],
+                server=data['server']
+            )
+    except ObjectDoesNotExist:
+        # If it failed means we need to create it.
+        snitch = Snitch.objects.create(
+                token=token,
+                name=data['snitch_name'],
+                x_pos=data['x_pos'],
+                y_pos=data['y_pos'],
+                z_pos=data['z_pos'],
+                world=data['world'],
+                server=data['server']
+            )
+    # Now let's make the record for it.
+    record = Snitch_Record.objects.create(
+        snitch=snitch,
+        type=Snitch_Record.TYPES[data['type']],
+        user=data['user'],
+        pub_date=datetime.datetime.fromtimestamp(
+            data['timestamp'], 
+            tz=timezone.get_current_timezone()
+        )
+    )"""
     return HttpResponse(status=200)
   
 @login_required
@@ -209,3 +253,6 @@ def generate_token(request, group):
 def logout_view(request):
     logout(request)
     return render(request, 'home/home.html')
+#run()    
+#thr = threading.Thread(target=run, args=(), kwargs={})
+#thr.start()
