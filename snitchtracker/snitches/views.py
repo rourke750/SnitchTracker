@@ -13,6 +13,8 @@ from django.db import transaction
 from django.utils.crypto import get_random_string
 from django.utils import timezone
 
+from ratelimit.decorators import ratelimit
+
 from .tasks import run, RepeatedTimer
 
 import threading
@@ -175,11 +177,12 @@ def remove_member(request, group, user, owner=None):
         return HttpResponseRedirect('/groups/o/%s' % group)
         
 rt = None
+@ratelimit(key='post:key', rate='60/m', block=True)
 @csrf_exempt
 @require_POST
 def webhook(request, key):
     # Start the process
-    global rt
+    global rt # TODO Make this not have to work this way
     if rt is None:
         rt = RepeatedTimer(10, run)
     try:
