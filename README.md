@@ -63,3 +63,38 @@ From the top level directory of the project navigate into snitchtracker and run
 > python manage.py startserver
 
 and if you navigate your browser to localhost:8000 it should be up.
+
+## Development
+### Webhook
+
+The first thing needed for posting for a webhook is a group api token.  You can generate one by going to your groups and if you are the owner of it press generate token.  You will then take the token and build a url like
+
+> https://snitch.sandislandserv.com/api/webhook/<token>
+  
+Then you will post a json body as such:
+>{
+	"snitch_name":"test1",
+	"x_pos":<x pos (int)>,
+	"y_pos":<y pos (int)>,
+	"z_pos":<z pos (int)>,
+	"world":<name of the world (string)>,
+	"server":<server this snitch came from (string)>,
+	"type":<type 0 means entered, 1 means logged in, 2 means logged out (int)>,
+	"user":<user name of person who tripped the snitch (string)>,
+	"timestamp":<unix time stamp (long)>
+}
+
+Exmaple request:
+>{
+	"snitch_name":"test1",
+	"x_pos":100,
+	"y_pos":50,
+	"z_pos":1000,
+	"world":"world",
+	"server":"test.sandislandserv.com",
+	"type":0,
+	"user":"rourke750",
+	"timestamp":1529258100
+}
+
+Keep in mind you can only make 60 posts a minute, any more will be denied until the time is up. If there are special cercumstances let me know and I can potentially put you on a different rate limit.
