@@ -1,0 +1,22 @@
+{% extends 'home/base.html' %}
+{% block content %}
+ {% if user.is_authenticated %}
+   <h1><u>Snitches</u></h1>
+   <h3>Owner List</h3>
+    <div class="container">
+     {% for snitch in ownerGroups %}
+      <div class="row">
+       <a href="/snitches/{{ snitch.id }}">{{snitch.server}}: {{snitch.name}} {{snitch.world}} {{snitch.x_pos}} {{snitch.y_pos}} {{snitch.z_pos}}</a>
+      </div>
+     {% endfor %}
+    </div>
+   <h3>Admin List</h3>
+    <div class="container">
+     {% for snitch in adminGroups %}
+      <div class="row">
+       <a href="/snitches/{{ snitch.id }}">{{snitch.server}}: {{snitch.name}} {{snitch.world}} {{snitch.x_pos}} {{snitch.y_pos}} {{snitch.z_pos}}</a>
+      </div>
+     {% endfor %}
+    </div>
+ {% endif %}
+{% endblock %}

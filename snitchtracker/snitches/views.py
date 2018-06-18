@@ -177,7 +177,7 @@ def remove_member(request, group, user, owner=None):
         return HttpResponseRedirect('/groups/o/%s' % group)
         
 rt = None
-@ratelimit(key='post:key', rate='60/m', block=True)
+@ratelimit(key='post:key', rate='0/m', block=True)
 @csrf_exempt
 @require_POST
 def webhook(request, key):
@@ -253,9 +253,26 @@ def generate_token(request, group):
     Token.objects.create(group=groupObject, api_key=get_random_string(length=32))
     return HttpResponseRedirect('/groups/o/%s' % group)
     
+@login_required
+@transaction.atomic
+def view_snitches(request):
+    # So I only want owners of a group to be able to modify which groups their snitches can report to.
+    # Also if they are admin of a group they can add snitches to that group.
+    # Lets get all their snitches they are owner of.
+    groups = Group.objects.filter(owner=request.user)
+    tokens = Token.objects.filter(group__in=groups)
+    snitchGroups = Snitch.objects.filter(token__in=tokens)
+    # Now to do the list of groups the user is admin of.
+    groupAdminsIds = Group_Member.objects.filter(user=request.user, permission=Group_Member.PERMISSIONS[Group_Member.ADMIN][1]).values('belongs')
+    groupAdmins = Group.objects.filter(id__in=groupAdminsIds)
+    tokenAdmins = Token.objects.filter(group__in=groupAdmins)
+    snitchAdmins = Snitch.objects.filter(token__in=tokenAdmins)
+    content = {
+        'ownerGroups' : snitchGroups,
+        'adminGroups' : snitchAdmins
+    }
+    return render(request, 'snitches/snitches.html', content)
+    
 def logout_view(request):
     logout(request)
     return render(request, 'home/home.html')
-#run()    
-#thr = threading.Thread(target=run, args=(), kwargs={})
-#thr.start()
