@@ -14,7 +14,7 @@
     <script>
         var features = CivMap.api.getState().features.featuresUser
         for (var key in features) {
-         CivMap.api.dispatch({ type: 'REMOVE_FEATURE', feature: features[key] })
+         CivMap.api.dispatch({ type: 'REMOVE_FEATURE', id: features[key].id })
         }
     </script>
     {% for record in list %}
