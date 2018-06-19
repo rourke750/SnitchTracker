@@ -1,6 +1,7 @@
 import copy, json, datetime
 
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
@@ -50,19 +51,19 @@ def Home(request):
 def update_profile(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
-        profile_form = ProfileForm(request.POST, instance=request.user.profile)
-        if user_form.is_valid() and profile_form.is_valid():
+        #profile_form = ProfileForm(request.POST, instance=request.user.profile)
+        if user_form.is_valid():# and profile_form.is_valid():
             user_form.save()
-            profile_form.save()
+            #profile_form.save()
             return HttpResponseRedirect('/')
         else:
-            messages.error(request, _('Please correct the error below.'))
+            messages.error(request, ('Please correct the error below.'))
     else:
         user_form = UserForm(instance=request.user)
-        profile_form = ProfileForm(instance=request.user.profile)
+        #profile_form = ProfileForm(instance=request.user.profile)
     return render(request, 'home/profile.html', {
-        'user_form': user_form,
-        'profile_form': profile_form
+        'user_form': user_form
+        #'profile_form': profile_form
     })
    
 # This method handles displaying all your groups

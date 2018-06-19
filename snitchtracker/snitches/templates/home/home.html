@@ -11,12 +11,18 @@
      document.getElementById("app-root").children[0].children[0].classList.remove('appbar');
      setTimeout("location.reload(true);", 10000);
     </script>
+    <script>
+        var features = CivMap.api.getState().features.featuresUser
+        for (var key in features) {
+         CivMap.api.dispatch({ type: 'REMOVE_FEATURE', feature: features[key] })
+        }
+    </script>
     {% for record in list %}
     <script>
-        // example: load an icon, after 1000ms move it and change the name
         var f = {
             "x": {{record.snitch.x_pos}}, "z": {{record.snitch.z_pos}}, "id": "{{record.user}}", "name": "{{record.user}}",
             icon: 'https://minotar.net/avatar/{{record.user}}/32.png', icon_size: 32,
+            last_seen: '{{record.pub_date}}', snitch_triggered: '{{record.snitch.name}}'
         }
         CivMap.api.dispatch({ type: 'UPDATE_FEATURE', feature: f })
         

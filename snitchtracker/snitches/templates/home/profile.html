@@ -7,7 +7,7 @@
 </div>
 <form method="post">
  {% csrf_token %}
- {{ profile_form.as_p }}
+ {{ user_form }}
  <button type="submit">Save changes</button>
 </form>
 {% endblock %}

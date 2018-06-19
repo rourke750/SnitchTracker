@@ -4,6 +4,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+import random
+
 from jsonfield import JSONField
 
 # Create your models here.
@@ -96,6 +98,7 @@ class WebhookTransaction(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
+        instance.username='newuser'+str(random(1,9999999999999))
         Profile.objects.create(user=instance)
         # We also want to create a group for them
         Group.objects.create(owner=instance, name='Default Group')
