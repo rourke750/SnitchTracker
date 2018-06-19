@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.db import transaction
+from django.db.models import Q, Max
 from django.utils.crypto import get_random_string
 from django.utils import timezone
 
@@ -24,11 +25,25 @@ from .forms import UserForm, ProfileForm, GroupForm, AddMember
 
 # Create your views here.
 
-def test(request):
-    return render(request, 'home/test.html')
-
 def Home(request):
-    return render(request, 'home/home.html')
+    context = {}
+    if request.user.is_authenticated:
+        ownerGroups = Group.objects.filter(owner=request.user)
+        memberGroupIds = Group_Member.objects.filter(user=request.user).values('belongs')
+        memberGroups = Group.objects.filter(id__in=memberGroupIds)
+        tokens = Token.objects.filter(Q(group__in=ownerGroups) | Q(group__in=memberGroups))
+        snitches = Snitch.objects.filter(token__in=tokens)
+        date = datetime.datetime.now(tz=timezone.get_current_timezone()) - datetime.timedelta(minutes=15)
+        alerts = Snitch_Record.objects.filter(snitch__in=snitches, pub_date__gte=date).order_by('-pub_date')
+        array = []
+        while (len(alerts) != 0):
+            alert = alerts.first()
+            array.append(alert)
+            alerts = alerts.exclude(user=alert.user)
+        context = {
+                'list' : array
+            }
+    return render(request, 'home/home.html', context)
 
 @login_required
 @transaction.atomic
@@ -177,7 +192,7 @@ def remove_member(request, group, user, owner=None):
         return HttpResponseRedirect('/groups/o/%s' % group)
         
 rt = None
-@ratelimit(key='post:key', rate='0/m', block=True)
+@ratelimit(key='post:key', rate='60/m', block=True)
 @csrf_exempt
 @require_POST
 def webhook(request, key):
@@ -272,6 +287,22 @@ def view_snitches(request):
         'adminGroups' : snitchAdmins
     }
     return render(request, 'snitches/snitches.html', content)
+    
+@login_required
+@transaction.atomic
+def view_alerts(request):
+    # This method is used to display all the snitch events.
+    # Let's get all the snitch records this user has access to.
+    ownerGroups = Group.objects.filter(owner=request.user)
+    memberGroupIds = Group_Member.objects.filter(user=request.user).values('belongs')
+    memberGroups = Group.objects.filter(id__in=memberGroupIds)
+    tokens = Token.objects.filter(Q(group__in=ownerGroups) | Q(group__in=memberGroups))
+    snitches = Snitch.objects.filter(token__in=tokens)
+    alerts = Snitch_Record.objects.filter(snitch__in=snitches).order_by('-pub_date')
+    content = {
+        'alerts' : alerts
+    }
+    return render(request, 'snitches/alerts.html', content)
     
 def logout_view(request):
     logout(request)

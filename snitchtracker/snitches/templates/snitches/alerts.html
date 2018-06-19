@@ -1,0 +1,13 @@
+{% extends 'home/base.html' %}
+{% block content %}
+ {% if user.is_authenticated %}
+   <h1><u>Alerts</u></h1>
+    <div class="container">
+     {% for alert in alerts %}
+      <div class="row">
+       <span>{{alert.pub_date}} : {{alert.user}} entered snitch {{alert.snitch.name}} at {{alert.snitch.world}} {{alert.snitch.x_pos}} {{alert.snitch.y_pos}} {{alert.snitch.z_pos}}</span>
+      </div>
+     {% endfor %}
+    </div>
+ {% endif %}
+{% endblock %}

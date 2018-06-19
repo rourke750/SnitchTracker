@@ -11,12 +11,12 @@
      document.getElementById("app-root").children[0].children[0].classList.remove('appbar');
      setTimeout("location.reload(true);", 10000);
     </script>
-    {% for snitch in snitchList %}
+    {% for record in list %}
     <script>
         // example: load an icon, after 1000ms move it and change the name
         var f = {
-            "x": -4000, "z": 1000, "id": "SOME_UNIQUE_ID", "name": "TTK2 sighted",
-            icon: 'https://minotar.net/avatar/ttk2/32.png', icon_size: 32,
+            "x": {{record.snitch.x_pos}}, "z": {{record.snitch.z_pos}}, "id": "{{record.user}}", "name": "{{record.user}}",
+            icon: 'https://minotar.net/avatar/{{record.user}}/32.png', icon_size: 32,
         }
         CivMap.api.dispatch({ type: 'UPDATE_FEATURE', feature: f })
         
