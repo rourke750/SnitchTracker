@@ -98,7 +98,7 @@ class WebhookTransaction(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        instance.username='newuser'+str(random(1,9999999999999))
+        instance.username='newuser'+str(random.randint(1,9999999999999))
         Profile.objects.create(user=instance)
         # We also want to create a group for them
         Group.objects.create(owner=instance, name='Default Group')
