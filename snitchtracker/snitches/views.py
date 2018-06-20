@@ -222,38 +222,6 @@ def webhook(request, key):
         request_meta=meta,
         token = token
     )
-    """
-    try:
-        snitch = Snitch.objects.get(
-                token=token,
-                name=data['snitch_name'],
-                x_pos=data['x_pos'],
-                y_pos=data['y_pos'],
-                z_pos=data['z_pos'],
-                world=data['world'],
-                server=data['server']
-            )
-    except ObjectDoesNotExist:
-        # If it failed means we need to create it.
-        snitch = Snitch.objects.create(
-                token=token,
-                name=data['snitch_name'],
-                x_pos=data['x_pos'],
-                y_pos=data['y_pos'],
-                z_pos=data['z_pos'],
-                world=data['world'],
-                server=data['server']
-            )
-    # Now let's make the record for it.
-    record = Snitch_Record.objects.create(
-        snitch=snitch,
-        type=Snitch_Record.TYPES[data['type']],
-        user=data['user'],
-        pub_date=datetime.datetime.fromtimestamp(
-            data['timestamp'], 
-            tz=timezone.get_current_timezone()
-        )
-    )"""
     return HttpResponse(status=200)
   
 @login_required

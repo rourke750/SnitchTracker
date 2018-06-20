@@ -48,9 +48,9 @@ class Snitch(models.Model):
     # This class handles individual snitch messages.
 class Snitch_Record(models.Model):
     snitch = models.ForeignKey(Snitch, on_delete=models.CASCADE) # The snitch.
-    ENTERED = 0
-    LOGGED_IN = 1
-    LOGGED_OUT = 2
+    ENTERED = 'Et'
+    LOGGED_IN = 'Li'
+    LOGGED_OUT = 'Lo'
     TYPES = (
         (ENTERED, 'Entered'),
         (LOGGED_IN, 'Logged in'),

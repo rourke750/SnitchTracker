@@ -56,9 +56,9 @@ def process_trans(trans):
         snitch = Snitch.objects.get(
                 token=trans.token,
                 name=j['snitch_name'],
-                x_pos=j['x_pos'],
-                y_pos=j['y_pos'],
-                z_pos=j['z_pos'],
+                x_pos=j['x'],
+                y_pos=j['y'],
+                z_pos=j['z'],
                 world=j['world'],
                 server=j['server']
             )
@@ -67,16 +67,24 @@ def process_trans(trans):
         snitch = Snitch.objects.create(
                 token=trans.token,
                 name=j['snitch_name'],
-                x_pos=j['x_pos'],
-                y_pos=j['y_pos'],
-                z_pos=j['z_pos'],
+                x_pos=j['x'],
+                y_pos=j['y'],
+                z_pos=j['z'],
                 world=j['world'],
                 server=j['server']
             )
     # Now let's make the record for it.
+    if j['type'] == 'Enter':
+        num = 0
+    elif j['type'] == 'Login':
+        num = 1
+    elif j['type'] == 'Logout':
+        num = 2
+    else:
+        num = -1
     record = Snitch_Record.objects.create(
         snitch=snitch,
-        type=Snitch_Record.TYPES[j['type']],
+        type=Snitch_Record.TYPES[num],
         user=j['user'],
         pub_date=trans.date_generated
     )
