@@ -22,7 +22,7 @@ from .tasks import run, RepeatedTimer
 import threading
 
 from .models import Profile, Token, Group, Group_Member, WebhookTransaction, Snitch, Snitch_Record
-from .forms import UserForm, ProfileForm, GroupForm, AddMember
+from .forms import UserForm, ProfileForm, GroupForm, AddMember, PlayerFilter
 
 # Create your views here.
 
@@ -251,6 +251,7 @@ def view_snitches(request):
     groupAdmins = Group.objects.filter(id__in=groupAdminsIds)
     tokenAdmins = Token.objects.filter(group__in=groupAdmins)
     snitchAdmins = Snitch.objects.filter(token__in=tokenAdmins)
+    
     content = {
         'ownerGroups' : snitchGroups,
         'adminGroups' : snitchAdmins
@@ -261,6 +262,17 @@ def view_snitches(request):
 @transaction.atomic
 def view_alerts(request):
     # This method is used to display all the snitch events.
+    player_name = None
+    start_time = None
+    end_time = None
+    player_filter = PlayerFilter()
+    if request.method == 'POST':
+        # Let's look at search results that have come
+        player_filter = PlayerFilter(request.POST)
+        if player_filter.is_valid():
+            player_name = player_filter.cleaned_data['search_bar']
+            start_time = player_filter.cleaned_data['start_date_field']
+            endTime = player_filter.cleaned_data['end_date_field']
     # Let's get all the snitch records this user has access to.
     ownerGroups = Group.objects.filter(owner=request.user)
     memberGroupIds = Group_Member.objects.filter(user=request.user).values('belongs')
@@ -268,8 +280,16 @@ def view_alerts(request):
     tokens = Token.objects.filter(Q(group__in=ownerGroups) | Q(group__in=memberGroups))
     snitches = Snitch.objects.filter(token__in=tokens)
     alerts = Snitch_Record.objects.filter(snitch__in=snitches).order_by('-pub_date')
+    if start_time:
+        alerts = alerts.filter(pub_date__gte=start_time)
+    if end_time:
+        alerts = alerts.filter(pub_date__lte=end_time)
+    if player_name:
+        alerts = alerts.filter(user=player_name)
+    
     content = {
-        'alerts' : alerts
+        'alerts' : alerts,
+        'playerFilterForm' : player_filter
     }
     return render(request, 'snitches/alerts.html', content)
     

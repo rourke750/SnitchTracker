@@ -9,7 +9,15 @@
    </form>
   {% endif %}
   {% if token %}
-   <span>API key for this group is: {{ token.api_key }}</span>
+   <div>
+    <span>API key for this group is: {{ token.api_key }}</span>
+   </div>
+   <div>
+    <span>Webhook url: {{ request.scheme }}:{{ request.get_host }}/api/webhook/</span>
+   </div>
+   <div>
+    <span>Json payload format for CivRelay {"snitch_name":"<snitch>", "x":<x>, "y":<y>, "z":<z>, "world":"<world>", "server":"mc.civclassic.co", "type":"<action>", "user":"<player>", "timestamp":<timeUnix> }</span>
+   </div>
   {% endif %}
   <div>
    {% if addMemberForm %}

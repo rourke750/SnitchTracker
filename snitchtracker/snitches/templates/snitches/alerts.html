@@ -3,6 +3,17 @@
  {% if user.is_authenticated %}
    <h1><u>Alerts</u></h1>
     <div class="container">
+     <div class="row">
+      <div class="col-sm">
+       <form method="post">
+        {% csrf_token %}
+        {{ playerFilterForm }}
+       <button type="submit" name="playerSearchSubmit">Search</button>
+       </form>
+      </div>
+     </div>
+    </div>
+    <div class="container">
      {% for alert in alerts %}
       <div class="row">
        <span>{{alert.pub_date}} : {{alert.user}} entered snitch {{alert.snitch.name}} at {{alert.snitch.world}} {{alert.snitch.x_pos}} {{alert.snitch.y_pos}} {{alert.snitch.z_pos}}</span>

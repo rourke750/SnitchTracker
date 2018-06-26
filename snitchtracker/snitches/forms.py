@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from snitches.models import Profile, Group_Member
 from django import forms
 
+from django.utils import timezone 
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
@@ -38,3 +40,8 @@ class AddMember(forms.Form):
             max_length=2,
             widget=forms.Select(choices=Group_Member.PERMISSIONS),
         )
+        
+class PlayerFilter(forms.Form):
+    search_bar = forms.CharField(label='Search Bar', widget=forms.TextInput, max_length=16, required=False)
+    start_date_field = forms.DateTimeField(label = 'Start', initial=timezone.now, required=False)
+    end_date_field = forms.DateTimeField(label = 'End', initial=timezone.now, required=False)
