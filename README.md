@@ -19,7 +19,7 @@ Add a new filter:
 
 > Webhook URL: https://snitch.sandislandserv.com/api/webhook/<group token>
 
-> Alert Format: {"snitch_name":"<snitch>", "x_pos":<x>, "y_pos":<y>, "z_pos":<z>, "world":"<world>", "server":"mc.civclassic.co", "type":0, "user":"<player>", "timestamp":<timeUnix> }
+> Alert Format: {"snitch_name":"<snitch>", "x":<x>, "y":<y>, "z":<z>, "world":"<world>", "server":"mc.civclassic.com", "type":0, "user":"<player>", "timestamp":<timeUnix> }
 
 ## Installation
 This repository will only help you in setting up dev mode for django. We will not provide support on properly hosting this website yourself as it verys between operating systems and how you choose to do it.
