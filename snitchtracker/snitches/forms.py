@@ -3,7 +3,7 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django import forms
-from snitches.models import Profile, Group_Member
+from snitches.models import Profile, GroupMember
 
 class UserForm(forms.ModelForm):
     """User form for users submitting username change.
@@ -35,7 +35,7 @@ class AddMember(forms.Form):
         try:
             group = kwargs.pop('group')
             user = kwargs.pop('user')
-            members = Group_Member.objects.filter(belongs=group)
+            members = GroupMember.objects.filter(belongs=group)
             users = User.objects.all().exclude(id=user.id)
             for member in members:
                 users = users.exclude(id=member.user.id)
@@ -49,7 +49,7 @@ class AddMember(forms.Form):
     name = forms.ModelMultipleChoiceField(queryset=User.objects.all())
     permission = forms.CharField(
         max_length=2,
-        widget=forms.Select(choices=Group_Member.PERMISSIONS),
+        widget=forms.Select(choices=GroupMember.PERMISSIONS),
     )
 
 class PlayerFilter(forms.Form):

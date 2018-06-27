@@ -56,7 +56,7 @@ class Snitch(models.Model):
     world = models.CharField(max_length=100) # The world the snitch is in.
     server = models.CharField(max_length=100) # The server this snitch belongs to.
 
-class Snitch_Record(models.Model):
+class SnitchRecord(models.Model):
     """This class handles individual snitch messages.
     """
     snitch = models.ForeignKey(Snitch, on_delete=models.CASCADE) # The snitch.
@@ -77,7 +77,7 @@ class Snitch_Record(models.Model):
     pub_date = models.DateTimeField('date published', default=None)
     # Currently incomplete, once finalize what details we want will update
 
-class Snitch_Group(models.Model):
+class SnitchGroup(models.Model):
     """This class represents a connector from a snitch record to the group.
     """
     group = models.ForeignKey(Group, on_delete=models.CASCADE)

@@ -4,7 +4,7 @@ from threading import Timer
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Snitch, Snitch_Record, WebhookTransaction
+from .models import Snitch, SnitchRecord, WebhookTransaction
 
 class RepeatedTimer(object):
     """Class used to repeat run a method.
@@ -96,9 +96,9 @@ def process_trans(trans):
         num = 2
     else:
         num = -1
-    record = Snitch_Record.objects.create(
+    record = SnitchRecord.objects.create(
         snitch=snitch,
-        type=Snitch_Record.TYPES[num],
+        type=SnitchRecord.TYPES[num],
         user=j['user'],
         pub_date=trans.date_generated
     )

@@ -21,7 +21,7 @@ from .tasks import run, RepeatedTimer
 
 import threading
 
-from .models import Profile, Token, Group, Group_Member, WebhookTransaction, Snitch, Snitch_Record
+from .models import Profile, Token, Group, GroupMember, WebhookTransaction, Snitch, SnitchRecord
 from .forms import UserForm, ProfileForm, GroupForm, AddMember, PlayerFilter
 
 # Create your views here.
@@ -30,12 +30,12 @@ def Home(request):
     context = {}
     if request.user.is_authenticated:
         ownerGroups = Group.objects.filter(owner=request.user)
-        memberGroupIds = Group_Member.objects.filter(user=request.user).values('belongs')
+        memberGroupIds = GroupMember.objects.filter(user=request.user).values('belongs')
         memberGroups = Group.objects.filter(id__in=memberGroupIds)
         tokens = Token.objects.filter(Q(group__in=ownerGroups) | Q(group__in=memberGroups))
         snitches = Snitch.objects.filter(token__in=tokens)
         date = datetime.datetime.now(tz=timezone.get_current_timezone()) - datetime.timedelta(minutes=15)
-        alerts = Snitch_Record.objects.filter(snitch__in=snitches, pub_date__gte=date).order_by('-pub_date')
+        alerts = SnitchRecord.objects.filter(snitch__in=snitches, pub_date__gte=date).order_by('-pub_date')
         array = []
         while (len(alerts) != 0):
             alert = alerts.first()
@@ -90,7 +90,7 @@ def handle_group(request):
     # No group specified
     # Let's render the groups
     groups = Group.objects.filter(owner=request.user)
-    sharedGroups = Group_Member.objects.filter(user=request.user)
+    sharedGroups = GroupMember.objects.filter(user=request.user)
     content = {
             'groupList' : groups,
             'sharedList' : sharedGroups
@@ -114,7 +114,7 @@ def show_group(request, name, user=None):
         # The user is being checked by a member or admin
         ownerObject = User.objects.get(username=user) # Owner of the group
         group = get_object_or_404(Group, owner=ownerObject, name=name)
-        groupMember = get_object_or_404(Group_Member, belongs=group, user=request.user)
+        groupMember = get_object_or_404(GroupMember, belongs=group, user=request.user)
         if groupMember.permission == groupMember.ADMIN: # User is admin so had permission
             edit = True
     if request.method == 'POST' and edit:
@@ -123,13 +123,13 @@ def show_group(request, name, user=None):
         if form.is_valid():
             newMember = form.cleaned_data['name']
             perm = form.cleaned_data['permission']
-            member = Group_Member(belongs=group, user=newMember[0], permission=Group_Member.PERMISSIONS[int(perm)][1])
+            member = GroupMember(belongs=group, user=newMember[0], permission=GroupMember.PERMISSIONS[int(perm)][1])
             member.save()
     users = []
     try:
         # Get a list of members and render them
-        group_members = Group_Member.objects.filter(belongs=group)
-        for member in group_members:
+        GroupMembers = GroupMember.objects.filter(belongs=group)
+        for member in GroupMembers:
             users.append({'username' : member.user.username, 'perm' : member.permission})
     except ObjectDoesNotExist:
         pass
@@ -177,14 +177,14 @@ def remove_member(request, group, user, owner=None):
         try:
             ownerObject = User.objects.get(username=owner)
             groupObject = Group.objects.get(name=group, owner=ownerObject)
-            groupMember = Group_Member.objects.get(belongs=groupObject, user=request.user)
+            groupMember = GroupMember.objects.get(belongs=groupObject, user=request.user)
             if groupMember.permission != groupMember.ADMIN:
                 return HttpResponse(status=404)
         except ObjectDoesNotExist:
             return HttpResponse(status=404)
     # If we are here then the user can edit
     deleteUser = User.objects.get(username=user)
-    Group_Member.objects.get(belongs=groupObject, user=deleteUser).delete()
+    GroupMember.objects.get(belongs=groupObject, user=deleteUser).delete()
     if not owner is None:
         # Admin removed someone
         return HttpResponseRedirect('/groups/m/%s/%s' % (owner, group))
@@ -247,7 +247,7 @@ def view_snitches(request):
     tokens = Token.objects.filter(group__in=groups)
     snitchGroups = Snitch.objects.filter(token__in=tokens)
     # Now to do the list of groups the user is admin of.
-    groupAdminsIds = Group_Member.objects.filter(user=request.user, permission=Group_Member.PERMISSIONS[Group_Member.ADMIN][1]).values('belongs')
+    groupAdminsIds = GroupMember.objects.filter(user=request.user, permission=GroupMember.PERMISSIONS[GroupMember.ADMIN][1]).values('belongs')
     groupAdmins = Group.objects.filter(id__in=groupAdminsIds)
     tokenAdmins = Token.objects.filter(group__in=groupAdmins)
     snitchAdmins = Snitch.objects.filter(token__in=tokenAdmins)
@@ -275,11 +275,11 @@ def view_alerts(request):
             endTime = player_filter.cleaned_data['end_date_field']
     # Let's get all the snitch records this user has access to.
     ownerGroups = Group.objects.filter(owner=request.user)
-    memberGroupIds = Group_Member.objects.filter(user=request.user).values('belongs')
+    memberGroupIds = GroupMember.objects.filter(user=request.user).values('belongs')
     memberGroups = Group.objects.filter(id__in=memberGroupIds)
     tokens = Token.objects.filter(Q(group__in=ownerGroups) | Q(group__in=memberGroups))
     snitches = Snitch.objects.filter(token__in=tokens)
-    alerts = Snitch_Record.objects.filter(snitch__in=snitches).order_by('-pub_date')
+    alerts = SnitchRecord.objects.filter(snitch__in=snitches).order_by('-pub_date')
     if start_time:
         alerts = alerts.filter(pub_date__gte=start_time)
     if end_time:
