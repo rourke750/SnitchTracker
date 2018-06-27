@@ -3,3 +3,5 @@ social-auth-app-django
 python-social-auth[django]
 jsonfield
 django-ratelimit
+pylint
+pylint-django
