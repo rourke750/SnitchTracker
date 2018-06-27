@@ -1,0 +1,1 @@
+pylint --load-plugins pylint_django snitchtracker/snitches

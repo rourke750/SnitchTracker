@@ -36,7 +36,7 @@ class AddMember(forms.Form):
             group = kwargs.pop('group')
             user = kwargs.pop('user')
             members = GroupMember.objects.filter(belongs=group)
-            users = User.objects.all().exclude(id=user.id)
+            users = User.objects.exclude(id=user.id)
             for member in members:
                 users = users.exclude(id=member.user.id)
 

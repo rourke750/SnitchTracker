@@ -20,5 +20,5 @@ urlpatterns = [
     path(r'alerts', views.view_alerts),
     url(r'^logout', views.logout_view),
     path(r'api/webhook/<str:key>', views.webhook),
-    url(r'^', views.Home),
+    url(r'^', views.home),
 ]
