@@ -94,6 +94,7 @@ class Profile(models.Model):
         on_delete=models.CASCADE
     )
     token = models.TextField(max_length=36, blank=True)
+    authenticated = models.BooleanField(default=False)
 
 class WebhookTransaction(models.Model):
     """This model represents a webhook post.
@@ -115,21 +116,21 @@ class WebhookTransaction(models.Model):
     status = models.CharField(max_length=250, choices=STATUSES, default=UNPROCESSED)
     token = models.ForeignKey(Token, on_delete=models.CASCADE) # The token.
 
-    def __str__(self):
+    def __unicode__(self):
         return u'{0}'.format(self.date_event_generated)
 
 @receiver(post_save, sender=User)
-def create_user_profile(_sender, instance, created, **_kwargs):
+def create_user_profile1(sender, instance, created, **_kwargs):
     """Handles generating user profiles.
     """
     if created:
         instance.username = 'newuser'+str(random.randint(1, 9999999999999))
-        Profile.objects.create(user=instance)
+        Profile.objects.create(user=instance, authenticated=False)
         # We also want to create a group for them
         Group.objects.create(owner=instance, name='Default Group')
 
 @receiver(post_save, sender=User)
-def save_user_profile(_sender, instance, **_kwargs):
+def save_user_profile(sender, instance, **_kwargs):
     """Saves a user profile.
     """
     instance.profile.save()
