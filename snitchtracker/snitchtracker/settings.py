@@ -40,8 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'snitches.apps.SnitchesConfig',
     'social_django',
-    'django.contrib.admin'
+    'django.contrib.admin',
+    'webpush',
 ]
+
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": secret.VAPID_PUBLIC_KEY,
+    "VAPID_PRIVATE_KEY": secret.VAPID_PRIVATE_KEY,
+    "VAPID_ADMIN_EMAIL": secret.VAPID_ADMIN_EMAIL
+}
 
 #SOCIAL_AUTH_STORAGE = 'social_django_mongoengine.models.DjangoStorage'
 

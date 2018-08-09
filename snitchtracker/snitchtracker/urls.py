@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 app_name='snitch_tracker'
 
 urlpatterns = [
+    url(r'^webpush/', include('webpush.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^account/', include('social_django.urls')),
     url(r'^account/', include('django.contrib.auth.urls')),

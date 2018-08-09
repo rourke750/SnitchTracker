@@ -5,3 +5,4 @@ jsonfield
 django-ratelimit
 pylint
 pylint-django
+django-webpush

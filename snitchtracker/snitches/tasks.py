@@ -4,7 +4,9 @@ from threading import Timer
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Snitch, SnitchRecord, WebhookTransaction
+from webpush import send_user_notification
+
+from .models import Snitch, SnitchRecord, WebhookTransaction, GroupMember
 
 class RepeatedTimer(object):
     """Class used to repeat run a method.
@@ -102,4 +104,12 @@ def process_trans(trans):
         user=j['user'],
         pub_date=trans.date_generated
     )
+    # Now let's send a push notification
+    payload = {"head": "Snitch Tracker", "body": "Snitch notification [%s] %s from %s at %s %d %d %d" % (j['type'], j['user'], j['server'], j['world'], j['x'], j['y'], j['z'])}
+    # Now let's iterate through all the users
+    group = trans.token.group
+    group_members = GroupMember.objects.filter(belongs=group)
+    for g in group_members:
+        send_user_notification(user=g.user, payload=payload, ttl=1000)
+    send_user_notification(user=group.owner, payload=payload, ttl=1000)
     return record
