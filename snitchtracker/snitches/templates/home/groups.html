@@ -13,10 +13,10 @@
     <span>API key for this group is: {{ token.api_key }}</span>
    </div>
    <div>
-    <span>Webhook url: {{ request.scheme }}:{{ request.get_host }}/api/webhook/</span>
+    <span>Webhook url: {{ request.scheme }}:{{ request.get_host }}/api/webhook/{{ token.api_key }}</span>
    </div>
    <div>
-    <span>Json payload format for CivRelay {"snitch_name":"<snitch>", "x":<x>, "y":<y>, "z":<z>, "world":"<world>", "server":"mc.civclassic.com", "type":"<action>", "user":"<player>", "timestamp":<timeUnix> }</span>
+    <span>Json payload format for CivRelay {"snitch_name":"&lt;snitch>", "x":&lt;x>, "y":&lt;y>, "z":&lt;z>, "world":"&lt;world>", "server":"mc.civclassic.com", "type":"&lt;action>", "user":"&lt;player>", "timestamp":&lt;timeUnix> }</span>
    </div>
   {% endif %}
   <div>
